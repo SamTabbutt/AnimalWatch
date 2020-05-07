@@ -14,8 +14,8 @@ urlpatterns = [
     path('postsegments/<int:pk>',views.PostSegmentDetail.as_view()),
     path('grouptags/',views.GroupTagList.as_view()),
     path('grouptags/<int:pk>',views.GroupTagDetail.as_view()),
-    path('animaltags/',views.AnimalTagList.as_view()),
-    path('animaltags/<int:pk>',views.AnimalTagDetail.as_view()),
+    path('animaltags/',views.AnimalTagCreate.as_view()),
+    path('animaltags/<int:pk>',views.AnimalTagList.as_view()),
     path('animalactiontags/',views.AnimalActionTagList.as_view()),
     path('animalactiontags/<int:pk>',views.AnimalActionTagDetail.as_view()),
     path('token/obtain/', views.ObtainTokenPairWithInstituteParams.as_view(), name='token_create'),  # override sjwt stock token

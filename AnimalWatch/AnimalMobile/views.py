@@ -66,7 +66,7 @@ class GroupTagDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = GroupTag.objects.all()
     serializer_class = GroupTagSerializer
 
-class AnimalTagList(generics.ListCreateAPIView):
+class AnimalTagCreate(generics.ListCreateAPIView):
     queryset = AnimalTag.objects.all()
     serializer_class = AnimalTagSerializer
 
@@ -80,9 +80,14 @@ class AnimalTagList(generics.ListCreateAPIView):
         newTag.save
         return Response(data={'Verified':'True'})
 
-class AnimalTagDetail(generics.RetrieveUpdateDestroyAPIView):
+class AnimalTagList(generics.RetrieveUpdateDestroyAPIView):
     queryset = AnimalTag.objects.all()
     serializer_class = AnimalTagSerializer
+
+    '''def list(self,request):
+        queryset = Post.objects.get(pk=request['pk']).animal_tags
+        serializer = AnimalTagSerializer(queryset,many=True)
+        return response(serializer.data)'''
 
 class AnimalActionTagList(generics.ListCreateAPIView):
     queryset = AnimalActionTag.objects.all()

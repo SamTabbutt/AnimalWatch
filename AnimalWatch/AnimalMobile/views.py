@@ -69,6 +69,15 @@ class PostSegmentCreate(generics.ListCreateAPIView):
         newSeg = PostSegment.objects.create(start_time=start_time,end_time=end_time,post=post)
         newSeg.save
         return Response(data={'Verified':'True'})
+    
+    def get(self,request):
+        dummyModelInstance = PostSegment.objects.all()[0]
+        serializer = PostSegmentSerializer(dummyModelInstance)
+        data = serializer.data
+        data.pop('id')
+        data.pop('post')
+        data.pop('action_tags')
+        return Response(data)
 
 class GroupTagList(generics.ListCreateAPIView):
     queryset = GroupTag.objects.all()
@@ -91,6 +100,14 @@ class AnimalTagCreate(generics.ListCreateAPIView):
         newTag = AnimalTag.objects.create(perspective=pers,animal_type=an_type,animal_assigned_name=name,animal_assigned_number=number,post=post)
         newTag.save
         return Response(data={'Verified':'True'})
+    
+    def get(self,request):
+        dummyModelInstance = AnimalTag.objects.all()[0]
+        serializer = AnimalTagSerializer(dummyModelInstance)
+        data = serializer.data
+        data.pop('id')
+        data.pop('post')
+        return Response(data)
 
 class AnimalTagList(generics.ListCreateAPIView):
     queryset = AnimalTag.objects.all()
@@ -113,6 +130,23 @@ class AnimalActionTagList(generics.ListCreateAPIView):
         return Response(serializer.data)
 
 
-class AnimalActionTagDetail(generics.RetrieveUpdateDestroyAPIView):
+class AnimalActionTagCreate(generics.ListCreateAPIView):
     queryset = AnimalActionTag.objects.all()
     serializer_class = AnimalActionTagSerializer
+
+    def create(self,request,*args,**kwargs):
+        post_seg = PostSegment.objects.get(pk=request.data['post'])
+        subject_list = request.data['subject_list']
+        verb = request.data['verb']
+        object_list = request.data['object_list']
+        newTag = AnimalActionTag.objects.create(post_segment=post_seg,subject_list=subject_list,verb=verb,object_list=object_list)
+        newTag.save()
+        return Response({'Verified':'True'})
+
+    def get(self,request):
+        dummyModelInstance = AnimalActionTag.objects.all()[0]
+        serializer = AnimalActionTagSerializer(dummyModelInstance)
+        data = serializer.data
+        data.pop('id')
+        data.pop('post_segment')
+        return Response(data)

@@ -63,4 +63,4 @@ class AnimalTagSerializer(serializers.ModelSerializer):
 class AnimalActionTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnimalActionTag
-        fields = ['id','post_segment','subject_list','verb','object_list','post']
+        fields = ['id','post_segment','subject_list','verb','object_list']

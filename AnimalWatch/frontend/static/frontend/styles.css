@@ -46,7 +46,7 @@ button:focus {
     font-size: large;
 }
 
-.animalcont{
+.animaltags{
     width:20%;
     height:100%;
     position:fixed;
@@ -57,22 +57,17 @@ button:focus {
 
 }
 
-.segments{
+.postsegments{
     width:80%;
     left:0;
 }
 
-.segbox{
+.postsegmentscont{
     padding:10px;
     border-style: solid;
     border-radius: 2px;
     border-color: thistle;
     margin:1px;
-}
-
-.tagbox{
-    
-
 }
 
 .video{

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axiosInstance from "../axiosApi";
-import Segment from './segment';
-import AnimalTag from './animalTag';
+import Segment from './Lists/segment';
+import AnimalTag from './Lists/animalTag';
 
 class Post extends Component{
     constructor(props) {
@@ -62,9 +62,9 @@ class Post extends Component{
                     <br></br>Environment: {this.state.env}</p>
                 </div>
                 
-                <AnimalTag pk={this.state.pk}/>
+                <AnimalTag pk={this.state.pk} baseurl='animaltags'/>
 
-                <Segment pk={this.state.pk}/>
+                <Segment pk={this.state.pk} baseurl='postsegments'/>
 
             </div>
         )

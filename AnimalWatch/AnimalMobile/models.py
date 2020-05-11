@@ -27,7 +27,7 @@ class PostSegment(models.Model):
     post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='segments')
 
 class AbsAnimalTag(models.Model):
-    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='animal_tags')
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='abs_animal_tags')
     animal_type = models.CharField(max_length=200,default='Unknown',blank=False)
 
 class GroupTag(AbsAnimalTag):
@@ -36,7 +36,9 @@ class GroupTag(AbsAnimalTag):
 perspective_choice_list = ['AnimalBorne','FixedCameraThirdPerson','MovingCameraThirdPerson']
 PERSPECTIVE_CHOICES = [(i,i) for i in perspective_choice_list]
 
-class AnimalTag(AbsAnimalTag):
+class AnimalTag(models.Model):
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='animal_tags')
+    animal_type = models.CharField(max_length=200,default='Unknown',blank=False)
     animal_assigned_name = models.CharField(max_length=100,blank=True)
     animal_assigned_number = models.IntegerField(default=0,blank=False)
     perspective = models.CharField(choices=PERSPECTIVE_CHOICES,max_length=30,blank=False,default='MovingCameraThirdPerson')
@@ -44,6 +46,6 @@ class AnimalTag(AbsAnimalTag):
 class AnimalActionTag(models.Model):
     post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='action_tags')
     post_segment = models.ForeignKey(PostSegment,on_delete=models.CASCADE,related_name='action_tags',default=1)
-    subject_list = models.ManyToManyField(AbsAnimalTag,blank=False,related_name='animal_actions')
+    subject_list = models.ManyToManyField(AnimalTag,blank=False,related_name='animal_actions')
     verb = models.CharField(default='is still',blank=False,max_length=100)
-    object_list = models.ManyToManyField(AbsAnimalTag,blank=True,related_name='animal_objects')
+    object_list = models.ManyToManyField(AnimalTag,blank=True,related_name='animal_objects')

@@ -10,14 +10,14 @@ urlpatterns = [
     path('users/<int:pk>/', views.UserDetail.as_view()),
     path('posts/<str:username>', views.UserPostList.as_view()),
     path('posts/<int:pk>/', views.PostDetail.as_view()),
-    path('postsegments/',views.PostSegmentList.as_view()),
-    path('postsegments/<int:pk>',views.PostSegmentDetail.as_view()),
+    path('postsegments/',views.PostSegmentCreate.as_view()),
+    path('postsegments/<int:pk>',views.PostSegmentList.as_view()),
     path('grouptags/',views.GroupTagList.as_view()),
     path('grouptags/<int:pk>',views.GroupTagDetail.as_view()),
     path('animaltags/',views.AnimalTagCreate.as_view()),
     path('animaltags/<int:pk>',views.AnimalTagList.as_view()),
     path('animalactiontags/',views.AnimalActionTagList.as_view()),
-    path('animalactiontags/<int:pk>',views.AnimalActionTagDetail.as_view()),
+    path('animalactiontags/<int:pk>',views.AnimalActionTagList.as_view()),
     path('token/obtain/', views.ObtainTokenPairWithInstituteParams.as_view(), name='token_create'),  # override sjwt stock token
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]

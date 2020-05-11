@@ -43,7 +43,6 @@ class UserPostList(generics.ListCreateAPIView):
         userposts = Post.objects.filter(pk=1)
         first_post = userposts[0]
         serialized_post = PostSerializer(first_post)
-        print(serialized_post.data)
         return Response(data=serialized_post.data, status=status.HTTP_200_OK)
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -54,9 +53,22 @@ class PostSegmentList(generics.ListCreateAPIView):
     queryset = PostSegment.objects.all()
     serializer_class = PostSegmentSerializer
 
-class PostSegmentDetail(generics.RetrieveUpdateDestroyAPIView):
+    def list(self,request,*args,**kwargs):
+        queryset = Post.objects.get(pk=kwargs['pk']).segments
+        serializer = PostSegmentSerializer(queryset,many=True)
+        return Response(serializer.data)
+
+class PostSegmentCreate(generics.ListCreateAPIView):
     queryset = PostSegment.objects.all()
     serializer_class = PostSegmentSerializer
+
+    def create(self,request,*args,**kwargs):
+        post = Post.objects.get(pk=request.data['post'])
+        start_time = request.data['start_time']
+        end_time = request.data['end_time']
+        newSeg = PostSegment.objects.create(start_time=start_time,end_time=end_time,post=post)
+        newSeg.save
+        return Response(data={'Verified':'True'})
 
 class GroupTagList(generics.ListCreateAPIView):
     queryset = GroupTag.objects.all()
@@ -80,18 +92,26 @@ class AnimalTagCreate(generics.ListCreateAPIView):
         newTag.save
         return Response(data={'Verified':'True'})
 
-class AnimalTagList(generics.RetrieveUpdateDestroyAPIView):
+class AnimalTagList(generics.ListCreateAPIView):
     queryset = AnimalTag.objects.all()
     serializer_class = AnimalTagSerializer
 
-    '''def list(self,request):
-        queryset = Post.objects.get(pk=request['pk']).animal_tags
+    def list(self,request,*args,**kwargs):
+        queryset = Post.objects.get(pk=kwargs['pk']).animal_tags
         serializer = AnimalTagSerializer(queryset,many=True)
-        return response(serializer.data)'''
+        print('Retrieving animal tags')
+        return Response(serializer.data)
 
 class AnimalActionTagList(generics.ListCreateAPIView):
     queryset = AnimalActionTag.objects.all()
     serializer_class = AnimalActionTagSerializer
+
+    def list(self,request,*args,**kwargs):
+        queryset = PostSegment.objects.get(pk=kwargs['pk']).action_tags
+        serializer = AnimalActionTagSerializer(queryset,many=True)
+        print('Retrieving animal action tags')
+        return Response(serializer.data)
+
 
 class AnimalActionTagDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = AnimalActionTag.objects.all()

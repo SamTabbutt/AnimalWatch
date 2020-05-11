@@ -2,5 +2,4 @@
 **/node_modules/
 **/migrations/
 **/db.sqlite3
-**/src
 **/package-lock.json

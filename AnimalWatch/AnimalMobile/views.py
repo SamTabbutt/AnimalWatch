@@ -49,12 +49,33 @@ class PostDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
+class PostCreate(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def get(self,request):
+        serializer = PostSerializer()
+        data = serializer.data
+        data.pop('animal_tags')
+        data.pop('segments')
+        return Response(data)
+
+class PostList(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def list(self,request,*args,**kwargs):
+        queryset = Post.objects.all()
+        serializer = PostSerializer(queryset,many=True)
+        return Response(serializer.data)
+
+
 class PostSegmentList(generics.ListCreateAPIView):
     queryset = PostSegment.objects.all()
     serializer_class = PostSegmentSerializer
 
     def list(self,request,*args,**kwargs):
-        queryset = Post.objects.get(pk=kwargs['pk']).segments
+        queryset = Post.objects.get(pk=kwargs['pk']).segments.order_by('-created_datetime')
         serializer = PostSegmentSerializer(queryset,many=True)
         return Response(serializer.data)
 
@@ -71,10 +92,8 @@ class PostSegmentCreate(generics.ListCreateAPIView):
         return Response(data={'Verified':'True'})
     
     def get(self,request):
-        dummyModelInstance = PostSegment.objects.all()[0]
-        serializer = PostSegmentSerializer(dummyModelInstance)
+        serializer = PostSegmentSerializer()
         data = serializer.data
-        data.pop('id')
         data.pop('post')
         data.pop('action_tags')
         return Response(data)
@@ -102,10 +121,8 @@ class AnimalTagCreate(generics.ListCreateAPIView):
         return Response(data={'Verified':'True'})
     
     def get(self,request):
-        dummyModelInstance = AnimalTag.objects.all()[0]
-        serializer = AnimalTagSerializer(dummyModelInstance)
+        serializer = AnimalTagSerializer()
         data = serializer.data
-        data.pop('id')
         data.pop('post')
         return Response(data)
 
@@ -137,16 +154,16 @@ class AnimalActionTagCreate(generics.ListCreateAPIView):
     def create(self,request,*args,**kwargs):
         post_seg = PostSegment.objects.get(pk=request.data['post'])
         subject_list = request.data['subject_list']
+        print(subject_list)
         verb = request.data['verb']
         object_list = request.data['object_list']
-        newTag = AnimalActionTag.objects.create(post_segment=post_seg,subject_list=subject_list,verb=verb,object_list=object_list)
+        print(object_list)
+        newTag = AnimalActionTag.objects.create(post_segment=post_seg,verb=verb)
         newTag.save()
         return Response({'Verified':'True'})
 
     def get(self,request):
-        dummyModelInstance = AnimalActionTag.objects.all()[0]
-        serializer = AnimalActionTagSerializer(dummyModelInstance)
+        serializer = AnimalActionTagSerializer()
         data = serializer.data
-        data.pop('id')
         data.pop('post_segment')
         return Response(data)

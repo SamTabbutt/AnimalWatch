@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+
 
 # Create your models here.
 class User(AbstractUser):
@@ -25,6 +27,8 @@ class PostSegment(models.Model):
     start_time = models.CharField(default='00:00:00',max_length=100)
     end_time = models.CharField(default='00:00:01',max_length=100)
     post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='segments')
+    created_datetime = models.DateTimeField('date created', default=timezone.now)
+
 
 class AbsAnimalTag(models.Model):
     post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='abs_animal_tags')
@@ -42,6 +46,7 @@ class AnimalTag(models.Model):
     animal_assigned_name = models.CharField(max_length=100,blank=True)
     animal_assigned_number = models.IntegerField(default=0,blank=False)
     perspective = models.CharField(choices=PERSPECTIVE_CHOICES,max_length=30,blank=False,default='MovingCameraThirdPerson')
+    created_datetime = models.DateTimeField('date created', default=timezone.now)
 
 class AnimalActionTag(models.Model):
     post_segment = models.ForeignKey(PostSegment,on_delete=models.CASCADE,related_name='action_tags',default=1)

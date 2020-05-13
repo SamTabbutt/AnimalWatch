@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axiosInstance from "../axiosApi";
 
-class ListAndCreate extends Component{
+class List extends Component{
     constructor(props) {
         super(props);
         this.pk= props.pk;
@@ -40,7 +40,7 @@ class ListAndCreate extends Component{
         return(<p>INVALID PATH</p>)}
 
     callForm(){
-       return(<div><ThisForm pk={this.state.pk} baseurl = {this.baseurl}/></div>)
+       return(<div><Create pk={this.state.pk} baseurl = {this.baseurl}/></div>)
     }
 
     render(){
@@ -62,7 +62,7 @@ class ListAndCreate extends Component{
 
 }
 
-class ThisForm extends Component{
+class Create extends Component{
     constructor(props) {
         super(props);
         this.state = {};
@@ -97,11 +97,7 @@ class ThisForm extends Component{
     }
 
     async componentWillUnmount(){
-        var outputdata = {};
-        var keys = Object.keys(this.state);
-        for(var i=0;i<keys.length;i++){
-            outputdata[keys[i]]=this.state[keys[i]];
-        }
+        var outputdata = this.state;
         outputdata['post'] = this.postid;
         event.preventDefault();
         try {
@@ -112,14 +108,21 @@ class ThisForm extends Component{
         }
     }
 
+    mappingFunction(statevar){
+        return(
+        <div>
+        <label>{statevar}:</label>
+        <input type='text' name={statevar} value={this.state.statevar} onChange={this.handleVarChange}></input><br></br>
+        </div>)
+    }
+
     render(){
         return(
             <div>
                 <form>
                     {Object.keys(this.state).map((statevar)=>(
                         <div key={statevar}>
-                            <label>{statevar}:</label>
-                            <input type='text' name={statevar} value={this.state.statevar} onChange={this.handleVarChange}></input><br></br>
+                            {this.mappingFunction(statevar)}
                         </div>
                     ))}
                 </form>
@@ -129,4 +132,4 @@ class ThisForm extends Component{
 
 }
 
-export default ListAndCreate;
+export {List,Create};

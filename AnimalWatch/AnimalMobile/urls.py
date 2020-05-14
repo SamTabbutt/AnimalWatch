@@ -17,8 +17,12 @@ urlpatterns = [
     path('grouptags/<int:pk>',views.GroupTagDetail.as_view()),
     path('animaltags/',views.AnimalTagCreate.as_view()),
     path('animaltags/<int:pk>',views.AnimalTagList.as_view()),
-    path('animalactiontags/',views.AnimalActionTagCreate.as_view()),
-    path('animalactiontags/<int:pk>',views.AnimalActionTagList.as_view()),
+    path('animalactiontags/',views.ActionTagInstanceCreate.as_view()),
+    path('animalactiontags/<int:pk>',views.ActionTagInstanceList.as_view()),
+    path('actiontagcategory/',views.ActionTagCategoryCreate.as_view()),
+    path('actiontagcategory/<int:pk>',views.ActionTagCategoryList.as_view()),
+    path('actiontagverb/',views.ActionTagVerbCreate.as_view()),
+    path('actiontagverb/<int:pk>',views.ActionTagVerbList.as_view()),
     path('token/obtain/', views.ObtainTokenPairWithInstituteParams.as_view(), name='token_create'),  # override sjwt stock token
     path('token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
 ]

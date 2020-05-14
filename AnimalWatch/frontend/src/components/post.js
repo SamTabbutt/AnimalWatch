@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import axiosInstance from "../axiosApi";
 import Segment from './Lists/segment';
 import AnimalTag from './Lists/animalTag';
+import ActionTagCategory from "./Lists/actionTagCategory";
 
 class Post extends Component{
     constructor(props) {
@@ -11,7 +12,6 @@ class Post extends Component{
             pk:pk
         };
         this.getPost = this.getPost.bind(this);
-        this.selectionChange = this.selectionChange.bind(this);
     }
 
     async getPost(){
@@ -30,8 +30,6 @@ class Post extends Component{
                 animalclass: animalclass,
                 user: user,
                 numsegments: 0,
-                subject_list: '',
-                object_list: ''
             });
             return environment; 
         }catch(error){
@@ -45,19 +43,6 @@ class Post extends Component{
         // Version 1 - no async: Console.log will output something undefined.
         const messageData1 = this.getPost();
         console.log("messageData1: ", JSON.stringify(messageData1, null, 4));
-    }
-
-    selectionChange(add,data,part){
-        var current_list = this.state[part];
-        if (add){
-            current_list = current_list+data.id+', ';
-            //current_list.push([data.id,data.animal_assigned_name]);
-        }else{
-            current_list = current_list.replace(data.id+', ','')
-            //current_list.pop([data.id,data.animal_assigned_name]);
-        }
-        this.setState({[part]:current_list});
-        console.log("CURRENT LIST:"+this.state[part]);
     }
 
     render(){
@@ -74,9 +59,13 @@ class Post extends Component{
                     <br></br>Environment: {this.state.env}</p>
                 </div>
 
-                <AnimalTag pk={this.state.pk} baseurl='animaltags' selectionChange = {this.selectionChange}/>
+                <div class='sidebar'>
+                <ActionTagCategory pk={this.state.pk} baseurl='actiontagcategory'/>
 
-                <Segment pk={this.state.pk} baseurl='postsegments' subject_list = {this.state.subject_list} object_list ={this.state.object_list}/>
+                <AnimalTag pk={this.state.pk} baseurl='animaltags'/>
+                </div>
+
+                <Segment pk={this.state.pk} baseurl='postsegments'/>
 
             </div>
         )

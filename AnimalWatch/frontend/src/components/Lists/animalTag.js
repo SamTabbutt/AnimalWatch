@@ -10,8 +10,6 @@ class AnimalTag extends List{
         return(
             <div>
             <p class='tagdetail'>
-            <input type='checkbox' onChange={(event)=>this.props.selectionChange(event.currentTarget.checked,data,'subject_list')}></input>
-            <input type='checkbox' onChange={(event)=>this.props.selectionChange(event.currentTarget.checked,data,'object_list')}></input>
             {data.animal_type} 
             ({data.animal_assigned_number}) --
             {data.animal_assigned_name} --

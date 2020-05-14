@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from AnimalMobile.models import User,Post,PostSegment,GroupTag,AnimalTag,AnimalActionTag
+from AnimalMobile.models import User,Post,PostSegment,GroupTag,AnimalTag,ActionTagInstance,ActionTagCategory,ActionTagVerb
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
@@ -42,7 +42,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
-        fields = ['id','animal_class','animal_environment','video','user','animal_tags','segments']
+        fields = ['id','animal_class','animal_environment','video','user','animal_tags','segments','tag_categories']
     
 class PostSegmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -55,12 +55,23 @@ class GroupTagSerializer(serializers.ModelSerializer):
         fields = ['id','estimated_number_of_animals','animal_type','post']
 
 class AnimalTagSerializer(serializers.ModelSerializer):
-    '''post = serializers.PrimaryKeyRelatedField(queryset=Post.objects)'''
     class Meta:
         model = AnimalTag
         fields = ['id','animal_assigned_number','animal_assigned_name','animal_type','post','perspective']
 
-class AnimalActionTagSerializer(serializers.ModelSerializer):
+class ActionTagVerbSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AnimalActionTag
-        fields = ['id','post_segment','subject_list','verb','object_list']
+        model = ActionTagVerb
+        fields = ['id','category','tag_verb','action_tags']
+
+class ActionTagCategorySerializer(serializers.ModelSerializer):
+    verbs = ActionTagVerbSerializer(many=True)
+    class Meta:
+        model = ActionTagCategory
+        fields = ['id','post','category_name','verbs']
+
+class ActionTagInstanceSerializer(serializers.ModelSerializer):
+    verb = serializers.StringRelatedField()
+    class Meta:
+        model = ActionTagInstance
+        fields = ['id','post_segment','verb']

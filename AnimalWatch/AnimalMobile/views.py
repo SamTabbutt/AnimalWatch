@@ -4,8 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from AnimalMobile.models import User, Post,PostSegment,GroupTag,AnimalTag,AnimalActionTag
-from AnimalMobile.serializers import MyTokenObtainPairSerializer,UserProfileSerializer, UserSerializer,PostSerializer, PostSegmentSerializer,GroupTagSerializer,AnimalTagSerializer,AnimalActionTagSerializer
+from AnimalMobile.models import User, Post,PostSegment,GroupTag,AnimalTag,ActionTagInstance,ActionTagCategory,ActionTagVerb
+from AnimalMobile.serializers import MyTokenObtainPairSerializer,UserProfileSerializer, UserSerializer,PostSerializer, PostSegmentSerializer,GroupTagSerializer,AnimalTagSerializer,ActionTagInstanceSerializer,ActionTagCategorySerializer,ActionTagVerbSerializer
 from rest_framework import generics, status, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
@@ -136,34 +136,85 @@ class AnimalTagList(generics.ListCreateAPIView):
         print('Retrieving animal tags')
         return Response(serializer.data)
 
-class AnimalActionTagList(generics.ListCreateAPIView):
-    queryset = AnimalActionTag.objects.all()
-    serializer_class = AnimalActionTagSerializer
+class ActionTagInstanceList(generics.ListCreateAPIView):
+    queryset = ActionTagInstance.objects.all()
+    serializer_class = ActionTagInstanceSerializer
 
     def list(self,request,*args,**kwargs):
         queryset = PostSegment.objects.get(pk=kwargs['pk']).action_tags
-        serializer = AnimalActionTagSerializer(queryset,many=True)
+        serializer = ActionTagInstanceSerializer(queryset,many=True)
         print('Retrieving animal action tags')
         return Response(serializer.data)
 
 
-class AnimalActionTagCreate(generics.ListCreateAPIView):
-    queryset = AnimalActionTag.objects.all()
-    serializer_class = AnimalActionTagSerializer
+class ActionTagInstanceCreate(generics.ListCreateAPIView):
+    queryset = ActionTagInstance.objects.all()
+    serializer_class = ActionTagInstanceSerializer
 
     def create(self,request,*args,**kwargs):
         post_seg = PostSegment.objects.get(pk=request.data['post'])
-        subject_list = request.data['subject_list']
-        print(subject_list)
-        verb = request.data['verb']
-        object_list = request.data['object_list']
-        print(object_list)
-        newTag = AnimalActionTag.objects.create(post_segment=post_seg,verb=verb)
+        verb = ActionTagVerb.objects.get(pk=request.data['tag_verb'])
+        newTag = ActionTagInstance.objects.create(post_segment=post_seg,verb=verb)
         newTag.save()
         return Response({'Verified':'True'})
 
     def get(self,request):
-        serializer = AnimalActionTagSerializer()
+        serializer = ActionTagInstanceSerializer()
         data = serializer.data
         data.pop('post_segment')
+        return Response(data)
+
+class ActionTagCategoryList(generics.ListCreateAPIView):
+    queryset = ActionTagCategory.objects.all()
+    serializer_class = ActionTagCategorySerializer
+
+    def list(self,request,*args,**kwargs):
+        queryset = Post.objects.get(pk=kwargs['pk']).tag_categories
+        serializer = ActionTagCategorySerializer(queryset,many=True)
+        print(serializer.data)
+        return Response(serializer.data)
+
+class ActionTagCategoryCreate(generics.ListCreateAPIView):
+    queryset = ActionTagCategory.objects.all()
+    serializer_class = ActionTagCategorySerializer
+
+    def create(self,request,*args,**kwargs):
+        post = Post.objects.get(pk=request.data['post'])
+        cat_name = request.data['category_name']
+        newCategory = ActionTagCategory.objects.create(post=post,category_name=cat_name)
+        newCategory.save()
+        return Response({'Verified':'True'})
+    
+    def get(self,request):
+        serializer = ActionTagCategorySerializer()
+        data = serializer.data
+        data.pop('verbs')
+        data.pop('post')
+        return Response(data)
+
+class ActionTagVerbList(generics.ListCreateAPIView):
+    queryset = ActionTagVerb.objects.all()
+    serializer_class = ActionTagVerbSerializer
+
+    def list(self,request,*args,**kwargs):
+        queryset = ActionTagCategory.objects.get(pk=kwargs['pk']).verbs
+        serializer = ActionTagVerbSerializer(queryset,many=True)
+        return Response(serializer.data)
+
+class ActionTagVerbCreate(generics.ListCreateAPIView):
+    queryset = ActionTagVerb.objects.all()
+    serializer_class = ActionTagVerbSerializer
+
+    def create(self,request,*args,**kwargs):
+        category = ActionTagCategory.objects.get(pk=request.data['post'])
+        verb = request.data['tag_verb']
+        newVerb = ActionTagVerb.objects.create(category=category,tag_verb=verb)
+        newVerb.save()
+        return Response({'Verified':'True'})
+
+    def get(self,request):
+        serializer = ActionTagVerbSerializer()
+        data=serializer.data
+        data.pop('category')
+        data.pop('action_tags')
         return Response(data)

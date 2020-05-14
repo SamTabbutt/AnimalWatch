@@ -48,8 +48,17 @@ class AnimalTag(models.Model):
     perspective = models.CharField(choices=PERSPECTIVE_CHOICES,max_length=30,blank=False,default='MovingCameraThirdPerson')
     created_datetime = models.DateTimeField('date created', default=timezone.now)
 
-class AnimalActionTag(models.Model):
+class ActionTagCategory(models.Model):
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='tag_categories',default=1)
+    category_name = models.CharField(blank=False,max_length=200)
+
+class ActionTagVerb(models.Model):
+    category = models.ForeignKey(ActionTagCategory,on_delete=models.CASCADE,related_name='verbs')
+    tag_verb = models.CharField(blank=False,max_length=200)
+
+    def __str__(self):
+        return self.tag_verb
+
+class ActionTagInstance(models.Model):
     post_segment = models.ForeignKey(PostSegment,on_delete=models.CASCADE,related_name='action_tags',default=1)
-    subject_list = models.ManyToManyField(AnimalTag,blank=False,related_name='animal_actions')
-    verb = models.CharField(default='is still',blank=False,max_length=100)
-    object_list = models.ManyToManyField(AnimalTag,blank=True,related_name='animal_objects')
+    verb = models.ForeignKey(ActionTagVerb,on_delete=models.CASCADE,related_name='action_tags')

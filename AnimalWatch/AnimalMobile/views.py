@@ -4,11 +4,13 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from AnimalMobile.models import User, Post,PostSegment,GroupTag,AnimalTag,ActionTagInstance,ActionTagCategory,ActionTagVerb
-from AnimalMobile.serializers import MyTokenObtainPairSerializer,UserProfileSerializer, UserSerializer,PostSerializer, PostSegmentSerializer,GroupTagSerializer,AnimalTagSerializer,ActionTagInstanceSerializer,ActionTagCategorySerializer,ActionTagVerbSerializer
+from AnimalMobile.models import User, Post,PostSegment,AnimalTag,ActionTagInstance,ActionTagCategory,ActionTagVerb
+from AnimalMobile.serializers import MyTokenObtainPairSerializer,UserProfileSerializer, UserSerializer,PostSerializer, PostSegmentSerializer,AnimalTagSerializer,ActionTagInstanceSerializer,ActionTagCategorySerializer,ActionTagVerbSerializer
 from rest_framework import generics, status, permissions
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.views import APIView
+from rest_framework import mixins
+
 
 
 class ObtainTokenPairWithInstituteParams(TokenObtainPairView):
@@ -53,12 +55,31 @@ class PostCreate(generics.ListCreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
+    def create(self,request,*args,**kwargs):
+        video = request.data['video']
+        user = User.objects.get(pk=request.data['post'][0])
+        animal_class = request.data['animal_class'][0]
+        animal_environment = request.data['animal_environment'][0]
+        newPost = Post.objects.create(video=video,user=user,animal_class=animal_class,animal_environment=animal_environment)
+        newPost.save()
+        return Response({'Verfied':'True'})
+
     def get(self,request):
         serializer = PostSerializer()
         data = serializer.data
         data.pop('animal_tags')
         data.pop('segments')
+        data.pop('tag_categories')
         return Response(data)
+
+class PostDetail(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    def get(self,request,*args,**kwargs):
+        queryset = Post.objects.get(pk=kwargs['pk'])
+        serializer = PostSerializer(queryset)
+        return Response(serializer.data)
 
 class PostList(generics.ListCreateAPIView):
     queryset = Post.objects.all()
@@ -83,13 +104,45 @@ class PostSegmentCreate(generics.ListCreateAPIView):
     queryset = PostSegment.objects.all()
     serializer_class = PostSegmentSerializer
 
+    def CheckAvailable(self,start,end,requested_verb):
+        thisverb = requested_verb
+        category = thisverb.category
+        delete_list = []
+        allow = True
+        print(category.verbs.all())
+        for verb in category.verbs.all():
+            for actiontag in verb.action_tags.all():
+                segment = actiontag.post_segment
+                if(start>float(segment.start_time) and start<float(segment.end_time)):
+                    delete_list.append(segment.pk)
+                    allow = False
+                if(end>float(segment.start_time) and end<float(segment.end_time)):
+                    delete_list.append(segment.pk)
+                    allow = False
+        return allow,delete_list
+
     def create(self,request,*args,**kwargs):
+        print(request.data)
         post = Post.objects.get(pk=request.data['post'])
         start_time = request.data['start_time']
         end_time = request.data['end_time']
-        newSeg = PostSegment.objects.create(start_time=start_time,end_time=end_time,post=post)
-        newSeg.save
-        return Response(data={'Verified':'True'})
+        print(request.data['action_verb'])
+        requested_verb = ActionTagVerb.objects.get(pk=request.data['action_verb'])
+        clearedToDelete = request.data['clear']
+        available, deleteList = self.CheckAvailable(start_time,end_time,requested_verb)
+        if(available or clearedToDelete):
+            newSeg = PostSegment.objects.create(start_time=start_time,end_time=end_time,post=post)
+            newSeg.save()
+            for toDelete in deleteList:
+                try:
+                    p = PostSegment.objects.get(pk=toDelete)
+                    p.delete()
+                except:
+                    print('not found')
+            return Response(data={'pk':newSeg.pk})
+        else:
+            print('not')
+            return Response(data={'VerifyDelete':True})
     
     def get(self,request):
         serializer = PostSegmentSerializer()
@@ -97,14 +150,11 @@ class PostSegmentCreate(generics.ListCreateAPIView):
         data.pop('post')
         data.pop('action_tags')
         return Response(data)
-
-class GroupTagList(generics.ListCreateAPIView):
-    queryset = GroupTag.objects.all()
-    serializer_class = GroupTagSerializer
-
-class GroupTagDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = GroupTag.objects.all()
-    serializer_class = GroupTagSerializer
+    
+    def delete(self, request, *args, **kwargs):
+        deleteInst = PostSegment.objects.get(pk=request.data['pk'])
+        deleteInst.delete(keep_parents=True)
+        return Response({'Deleted':'True'})
 
 class AnimalTagCreate(generics.ListCreateAPIView):
     queryset = AnimalTag.objects.all()
@@ -125,6 +175,11 @@ class AnimalTagCreate(generics.ListCreateAPIView):
         data = serializer.data
         data.pop('post')
         return Response(data)
+
+    def delete(self, request, *args, **kwargs):
+        deleteInst = AnimalTag.objects.get(pk=request.data['pk'])
+        deleteInst.delete(keep_parents=True)
+        return Response({'Deleted':'True'})
 
 class AnimalTagList(generics.ListCreateAPIView):
     queryset = AnimalTag.objects.all()
@@ -152,17 +207,23 @@ class ActionTagInstanceCreate(generics.ListCreateAPIView):
     serializer_class = ActionTagInstanceSerializer
 
     def create(self,request,*args,**kwargs):
+        print(request.data)
         post_seg = PostSegment.objects.get(pk=request.data['post'])
-        verb = ActionTagVerb.objects.get(pk=request.data['tag_verb'])
+        verb = ActionTagVerb.objects.get(pk=request.data['verb'])
         newTag = ActionTagInstance.objects.create(post_segment=post_seg,verb=verb)
         newTag.save()
-        return Response({'Verified':'True'})
+        return Response(ActionTagInstanceSerializer(newTag).data)
 
     def get(self,request):
         serializer = ActionTagInstanceSerializer()
         data = serializer.data
         data.pop('post_segment')
         return Response(data)
+
+    def delete(self, request, *args, **kwargs):
+        deleteInst = ActionTagInstance.objects.get(pk=request.data['pk'])
+        deleteInst.delete(keep_parents=True)
+        return Response({'Deleted':'True'})
 
 class ActionTagCategoryList(generics.ListCreateAPIView):
     queryset = ActionTagCategory.objects.all()
@@ -171,7 +232,6 @@ class ActionTagCategoryList(generics.ListCreateAPIView):
     def list(self,request,*args,**kwargs):
         queryset = Post.objects.get(pk=kwargs['pk']).tag_categories
         serializer = ActionTagCategorySerializer(queryset,many=True)
-        print(serializer.data)
         return Response(serializer.data)
 
 class ActionTagCategoryCreate(generics.ListCreateAPIView):
@@ -191,6 +251,11 @@ class ActionTagCategoryCreate(generics.ListCreateAPIView):
         data.pop('verbs')
         data.pop('post')
         return Response(data)
+    
+    def delete(self, request, *args, **kwargs):
+        deleteInst = ActionTagCategory.objects.get(pk=request.data['pk'])
+        deleteInst.delete(keep_parents=True)
+        return Response({'Deleted':'True'})
 
 class ActionTagVerbList(generics.ListCreateAPIView):
     queryset = ActionTagVerb.objects.all()
@@ -208,7 +273,8 @@ class ActionTagVerbCreate(generics.ListCreateAPIView):
     def create(self,request,*args,**kwargs):
         category = ActionTagCategory.objects.get(pk=request.data['post'])
         verb = request.data['tag_verb']
-        newVerb = ActionTagVerb.objects.create(category=category,tag_verb=verb)
+        color = request.data['color']
+        newVerb = ActionTagVerb.objects.create(category=category,tag_verb=verb,colorcode=color)
         newVerb.save()
         return Response({'Verified':'True'})
 
@@ -218,3 +284,8 @@ class ActionTagVerbCreate(generics.ListCreateAPIView):
         data.pop('category')
         data.pop('action_tags')
         return Response(data)
+
+    def delete(self, request, *args, **kwargs):
+        deleteInst = ActionTagVerb.objects.get(pk=request.data['pk'])
+        deleteInst.delete(keep_parents=True)
+        return Response({'Deleted':'True'})

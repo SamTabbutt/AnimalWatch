@@ -4,6 +4,7 @@ body{
     left:0;
     margin:0;
     padding:0;
+    font-family: sans-serif;
 }
 
 ::-webkit-scrollbar {
@@ -12,13 +13,16 @@ body{
 }
 
 button{
-    display: inline-block;
     border: none;
-    margin: 0;
+    margin: 1px;
+    padding:2px;
     text-decoration: none;
     background: #0069ed;
     color: #ffffff;
+    border-style: solid;
+    border-color: #0069ed;
     text-align: center;
+    border-radius: 3px;
     transition: background 250ms ease-in-out, 
                 transform 150ms ease;
     -webkit-appearance: none;
@@ -27,7 +31,9 @@ button{
 
 button:hover,
 button:focus {
-    background: #0053ba;
+    background: #ffffff;
+    color:#0069ed;
+    border-color: #0069ed;
 }
 
 button:focus {
@@ -36,46 +42,82 @@ button:focus {
 }
 
 
-.tagcont{
-    border-radius: 2px;
-    border-color: teal;
-    border-style: solid;
-}
-
 .boxhead{
     font-size: large;
 }
 
-.sidebar{
-    width:20%;
-    height:100%;
-    position:fixed;
-    right:0;
-    top:0;
-    padding:10px;
-    background-color: aqua;
-
-}
-
-.postsegments{
-    width:80%;
-    left:0;
-}
-
-.postsegmentscont{
-    padding:10px;
-    border-style: solid;
-    border-radius: 2px;
-    border-color: thistle;
-    margin:1px;
-}
-
 .video{
+    position: fixed;
+    overflow: scroll;
     width:80%;
-    height:200px;
-    background-color: cadetblue;
+    left:10%;
+    height:50%;
+    bottom:60%;
+    top:10%;
+}
+
+.nav{
+    height: 10%;
 }
 
 .infobox{
     border: turquoise;
+    display: none;
+}
+
+.video-scrubber{
+    position: relative;
+    height:300px;
+    width:500px;
+}
+
+.videoElement{
+    position:absolute;
+    left:0;
+    top:0;
+    z-index:0;
+    height:100%;
+    width:100%;
+    margin:0;
+    padding:0;
+}
+ 
+.video-scrubber-frame {
+    left: 0;
+    position: absolute;
+    top: 0;
+    z-index: 2;
+    height:100%;
+    width:100%;
+
+}
+
+.timeline-case{
+    position: relative;
+    height:50;
+    width:500;
+}
+
+.popup{
+    position:fixed;
+    height:30px;
+    width:30px;
+    border:3px solid;
+    z-index: 20;
+}
+
+.timeline-main-box{
+    position:fixed;
+    top:60%;
+    left:0;
+    height:40%;
+    overflow: scroll;
+    width:80%;
+    left:10%;
+}
+
+.timeline-display{
+    position: absolute;
+    top:40px;
+    left:0;
 }

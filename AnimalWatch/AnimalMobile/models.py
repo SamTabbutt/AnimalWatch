@@ -23,20 +23,6 @@ class Post(models.Model):
     video = models.FileField(max_length=100)
     user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='posts')
 
-class PostSegment(models.Model):
-    start_time = models.CharField(default='00:00:00',max_length=100)
-    end_time = models.CharField(default='00:00:01',max_length=100)
-    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='segments')
-    created_datetime = models.DateTimeField('date created', default=timezone.now)
-
-
-class AbsAnimalTag(models.Model):
-    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='abs_animal_tags')
-    animal_type = models.CharField(max_length=200,default='Unknown',blank=False)
-
-class GroupTag(AbsAnimalTag):
-    estimated_number_of_animals = models.IntegerField(default=100,blank=False)
-
 perspective_choice_list = ['AnimalBorne','FixedCameraThirdPerson','MovingCameraThirdPerson']
 PERSPECTIVE_CHOICES = [(i,i) for i in perspective_choice_list]
 
@@ -55,9 +41,16 @@ class ActionTagCategory(models.Model):
 class ActionTagVerb(models.Model):
     category = models.ForeignKey(ActionTagCategory,on_delete=models.CASCADE,related_name='verbs')
     tag_verb = models.CharField(blank=False,max_length=200)
+    colorcode = models.CharField(blank=False,default='#0069ed',max_length=15)
 
     def __str__(self):
         return self.tag_verb
+
+class PostSegment(models.Model):
+    start_time = models.CharField(default='0',max_length=100)
+    end_time = models.CharField(default='5',max_length=100)
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='segments')
+    created_datetime = models.DateTimeField('date created', default=timezone.now)
 
 class ActionTagInstance(models.Model):
     post_segment = models.ForeignKey(PostSegment,on_delete=models.CASCADE,related_name='action_tags',default=1)
